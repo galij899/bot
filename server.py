@@ -100,23 +100,19 @@ class Server:
         self.vk_api.messages.send(chat_id=chat, message=message, random_id=get_random_id())
 
     def add_chat(self, chat_id):
-        with open("roulette.json", "r") as file:
-            load = json.load(file)
-            if str(chat_id) not in list(load["chats"].keys()):
-                load["chats"][str(chat_id)] = {"players":{}}
-        with open('roulette.json', 'w') as file:
-            json.dump(load, file)
+        load = self.load_json()
+        if str(chat_id) not in list(load["chats"].keys()):
+            load["chats"][str(chat_id)] = {"players":{}}
+        self.save_json(load)
 
     def add_player(self, user_id, chat_id):
         self.add_chat(chat_id)
         if str(user_id) in self.get_chat_stats(chat_id).keys():
             self.send_message(chat_id, 'Уже в списках')
         else:
-            with open("roulette.json", "r") as file:
-                load = json.load(file)
+            load = self.load_json()
             load["chats"][str(chat_id)]["players"][str(user_id)] = 0
-            with open('roulette.json', 'w') as file:
-                json.dump(load, file)
+            self.save_json(load)
             self.send_message(chat_id, 'Добавил в приказ на отчисление')
 
     def start_game(self, chat_id):
@@ -136,15 +132,12 @@ class Server:
         self.send_message(chat_id, m)
 
     def death_count(self, user_id, chat_id):
-        with open("roulette.json", "r") as file:
-            load = json.load(file)
+        load = self.load_json()
         load["chats"][str(chat_id)]["players"][str(user_id)] = load["chats"][str(chat_id)]["players"][str(user_id)] + 1
-        with open('roulette.json', 'w') as file:
-            json.dump(load, file)
+        self.save_json(load)
 
     def get_chat_stats(self, chat_id):
-        with open("roulette.json", "r") as file:
-            load = json.load(file)
+        load = self.load_json()
         return load["chats"][str(chat_id)]["players"]
 
     def testing_users(self, chat_id, user_id):
@@ -156,3 +149,11 @@ class Server:
     def error_log(self, error):
         with open("log.csv", "a") as file:
             file.write(','.join([str(time.time()), error]) + "\n")
+
+    def load_json(self):
+        with open("roulette.json", "r") as file:
+            return json.load(file)
+
+    def save_json(self, load):
+        with open('roulette.json', 'w') as file:
+            json.dump(load, file)
