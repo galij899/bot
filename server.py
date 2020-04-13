@@ -45,8 +45,8 @@ class Server:
 
         for event in self.long_poll.listen():   # listening to the server
             # got new message event
-            print(event)
-            print(event.chat_id)
+            # print(event)
+            # print(event.chat_id)
             if event.type == VkBotEventType.MESSAGE_NEW: #or event.type == VkBotEventType.MESSAGE_REPLY:
                 #print(event.object)
                 if re.findall('откартавь', event.object['message']['text']):
@@ -60,7 +60,7 @@ class Server:
                                 res += 'Гх'
                             else:
                                 res += i
-                        print(res)
+                        #print(res)
                         self.send_message(event.chat_id, res)
                     else:
                         self.send_message(event.chat_id, 'Нечего тут откартавить')
@@ -120,6 +120,7 @@ class Server:
             self.send_message(chat_id, 'Добавил в приказ на отчисление')
 
     def start_game(self, chat_id):
+        self.add_chat(chat_id)
         if self.get_chat_stats(chat_id).keys():
             winner = random.choice(list(self.get_chat_stats(chat_id).keys()))
             self.send_message(chat_id, self.get_user_link(winner) + ', ты умер')
